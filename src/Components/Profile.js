@@ -9,14 +9,16 @@ const Profile = () => {
     const [phoneNo, setPhoneNo] = useState("")
     const [image, setImage]= useState("")
     const [gender, setGender] = useState("")
-
-    useEffect(() => {
-        getProfile()
-    }, [])
+    const [error, setError] = useState(null)
 
     const getProfile = () =>{
         fetch("https://randomuser.me/api")
-            .then(res => res.json())
+            .then(res => {
+                if(!res.ok){
+                    throw Error ("Could not Fetch data")
+                }
+                return res.json()
+            })
             .then(data => {
                 
                 let profile = data.results[0].name.first
@@ -35,13 +37,22 @@ const Profile = () => {
                 setImage(image)
                 setGender(gender)
             })
+            .catch(
+                err => {
+                  setError(err.message)
+              }
+            )
     }
     const handleClick = ()=>{
         getProfile()
     }
+    useEffect(
+        getProfile
+    , [])
 
     return ( 
         <div>
+            { error && <div > { error } </div> }
             <img src={image} alt="" />
             <p>FirstName: {firstName}  </p>
             <p>Last Name: {lastName} </p>
